@@ -17,17 +17,21 @@
   --fc-sidebar-width: 240px;
   --fc-radius: 12px;
   --fc-radius-sm: 8px;
-  --fc-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --fc-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 /* === Reset === */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
   font-family: 'Inter', sans-serif;
   background-color: var(--fc-bg);
@@ -40,22 +44,36 @@ html, body, #app {
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--fc-surface);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--fc-border);
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--fc-primary);
 }
 
 /* === Utility === */
-.text-success { color: var(--fc-success); }
-.text-danger  { color: var(--fc-danger); }
-.text-muted   { color: var(--fc-text-muted); }
-.text-primary { color: var(--fc-primary); }
+.text-success {
+  color: var(--fc-success);
+}
+
+.text-danger {
+  color: var(--fc-danger);
+}
+
+.text-muted {
+  color: var(--fc-text-muted);
+}
+
+.text-primary {
+  color: var(--fc-primary);
+}
 
 .card {
   background: var(--fc-surface);
@@ -70,14 +88,33 @@ html, body, #app {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1.5rem;
+  gap: 1rem;
 }
+
 .page-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--fc-text);
 }
+
 .page-subtitle {
   font-size: 0.85rem;
   color: var(--fc-text-muted);
   margin-top: 0.2rem;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .card {
+    padding: 1rem;
+    border-radius: var(--fc-radius-sm);
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
 }

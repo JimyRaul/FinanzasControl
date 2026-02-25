@@ -577,4 +577,47 @@ const fmt = (n) =>
   justify-content: center;
   padding: 6rem;
 }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .kpi-value {
+    font-size: 1.1rem;
+  }
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .bottom-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .chart-wrap,
+  .chart-wrap--tall {
+    height: 200px;
+  }
+  .mes-nav {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>

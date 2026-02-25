@@ -418,4 +418,30 @@ const etiquetaTipo = (t) => ({ gasto: 'Gasto', ingreso: 'Ingreso', ambos: 'Ambos
 }
 
 .dialog-footer { display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.5rem; }
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 768px) {
+  .cats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .tab-bar {
+    width: 100%;
+  }
+
+  .tab-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .cat-acciones {
+    opacity: 1;
+  }
+
+  .iconos-grid {
+    gap: 0.3rem;
+  }
+}
+
 </style>

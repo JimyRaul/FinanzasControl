@@ -397,4 +397,27 @@ const formatNum = (n) => n ? new Intl.NumberFormat('es-CO').format(n) : '—'
 }
 
 .mt-4 { margin-top: 1rem; }
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 768px) {
+  .cuentas-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .cuenta-acciones {
+    opacity: 1;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .cuentas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>

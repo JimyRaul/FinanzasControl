@@ -768,4 +768,63 @@ const formatFecha = (f) => {
   border-radius: 50%;
   flex-shrink: 0;
 }
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Filtros: una columna */
+  .filtros-bar {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+    padding: 0.75rem;
+  }
+
+  .filtros-bar :deep(.p-divider-vertical) {
+    display: none;
+  }
+
+  .mes-nav {
+    justify-content: center;
+  }
+
+  .filtro-select {
+    min-width: unset;
+    width: 100%;
+  }
+
+  /* KPIs: 2 columnas */
+  .kpi-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  /* Dialog fields: 1 columna */
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* Acciones siempre visibles en mobile */
+  .tx-acciones {
+    opacity: 1;
+  }
+
+  .tx-item {
+    gap: 0.6rem;
+  }
+
+  .tx-monto {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .kpi-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .kpi-value {
+    font-size: 1rem;
+  }
+}
+
 </style>
