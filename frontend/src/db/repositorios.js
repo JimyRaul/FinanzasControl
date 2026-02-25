@@ -1,20 +1,39 @@
 import { buscar, insertarConId, obtener, actualizar as actualizarDoc, bulkDocs } from './index'
 import { v4 as uuid } from 'uuid'
 
+// ── Helper: obtener usuario actual del store ───────────────
+function getUsuarioId() {
+    // Importación dinámica para evitar circular dependency con Pinia
+    try {
+        const raw = localStorage.getItem('fc_auth')
+        if (raw) return JSON.parse(raw).username || null
+    } catch { /* ignore */ }
+    return null
+}
+
 function crearDoc(type, datos) {
+    const usuario_id = getUsuarioId()
     return {
         _id: `${type}_${uuid()}`,
         type,
+        usuario_id,
         created_at: new Date().toISOString(),
         ...datos,
     }
+}
+
+// Añadir usuario_id al selector si no es un documento global
+function withUser(selector) {
+    const usuario_id = getUsuarioId()
+    if (!usuario_id) return selector
+    return { ...selector, usuario_id }
 }
 
 // ─── CUENTAS ──────────────────────────────────────────────
 
 export const CuentasDB = {
     async listar() {
-        return buscar({ type: 'cuenta' })
+        return buscar(withUser({ type: 'cuenta' }))
     },
 
     async crear(datos) {
@@ -51,7 +70,7 @@ const CATEGORIAS_DEFAULT = [
 
 export const CategoriasDB = {
     async listar() {
-        return buscar({ type: 'categoria' })
+        return buscar(withUser({ type: 'categoria' }))
     },
 
     async crear(datos) {
@@ -80,7 +99,7 @@ export const CategoriasDB = {
 
 export const TransaccionesDB = {
     async listar(filtros = {}) {
-        const selector = { type: 'transaccion', ...filtros }
+        const selector = withUser({ type: 'transaccion', ...filtros })
         const docs = await buscar(selector)
         return docs.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))
     },

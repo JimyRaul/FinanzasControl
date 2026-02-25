@@ -29,7 +29,16 @@
       </nav>
 
       <div class="sidebar-footer">
-        <span class="text-muted" style="font-size:0.75rem">v1.0.0</span>
+        <div class="user-info">
+          <div class="user-avatar">{{ authStore.nombreUsuario[0]?.toUpperCase() }}</div>
+          <div class="user-data">
+            <span class="user-name">{{ authStore.nombreUsuario }}</span>
+            <span class="user-sub text-muted">@{{ authStore.usuario?.username }}</span>
+          </div>
+        </div>
+        <button class="logout-btn" @click="cerrarSesion" title="Cerrar sesión">
+          <i class="pi pi-sign-out"></i>
+        </button>
       </div>
     </aside>
 
@@ -58,12 +67,20 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
+import { useAuthStore } from '../../stores/auth'
 
 const route      = useRoute()
+const router     = useRouter()
+const authStore  = useAuthStore()
 const sidebarOpen = ref(false)
+
+function cerrarSesion() {
+  authStore.logout()
+  router.push('/login')
+}
 
 const navItems = [
   { path: '/',              icon: 'pi-home',        label: 'Dashboard'     },
@@ -152,6 +169,71 @@ const navItems = [
   padding: 1rem 1.25rem 0;
   border-top: 1px solid var(--fc-border);
   margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(99,102,241,0.2);
+  color: var(--fc-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.user-data {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-sub {
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: var(--fc-text-muted);
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: var(--fc-radius-sm);
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: color 0.2s, background 0.2s;
+}
+
+.logout-btn:hover {
+  color: var(--fc-danger);
+  background: rgba(239,68,68,0.1);
 }
 
 /* ── Main content ────────────────────────────────────────── */

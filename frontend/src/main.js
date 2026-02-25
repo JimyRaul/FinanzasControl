@@ -15,6 +15,12 @@ const app = createApp(App)
 
 const pinia = createPinia()
 app.use(pinia)
+
+// Restaurar sesión ANTES de iniciar el router para que el guard funcione
+import { useAuthStore } from './stores/auth'
+const auth = useAuthStore()
+auth.inicializar()
+
 app.use(router)
 app.use(PrimeVue, {
   theme: {
