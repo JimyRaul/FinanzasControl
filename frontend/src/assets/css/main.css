@@ -1,0 +1,83 @@
+/* === Google Fonts === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* === CSS Variables === */
+:root {
+  --fc-bg: #0f172a;
+  --fc-surface: #1e293b;
+  --fc-surface-2: #243447;
+  --fc-border: #334155;
+  --fc-text: #f1f5f9;
+  --fc-text-muted: #94a3b8;
+  --fc-primary: #6366f1;
+  --fc-primary-light: #818cf8;
+  --fc-success: #10b981;
+  --fc-danger: #ef4444;
+  --fc-warning: #f59e0b;
+  --fc-sidebar-width: 240px;
+  --fc-radius: 12px;
+  --fc-radius-sm: 8px;
+  --fc-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+/* === Reset === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #app {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--fc-bg);
+  color: var(--fc-text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--fc-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--fc-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fc-primary);
+}
+
+/* === Utility === */
+.text-success { color: var(--fc-success); }
+.text-danger  { color: var(--fc-danger); }
+.text-muted   { color: var(--fc-text-muted); }
+.text-primary { color: var(--fc-primary); }
+
+.card {
+  background: var(--fc-surface);
+  border-radius: var(--fc-radius);
+  border: 1px solid var(--fc-border);
+  padding: 1.5rem;
+  box-shadow: var(--fc-shadow);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--fc-text);
+}
+.page-subtitle {
+  font-size: 0.85rem;
+  color: var(--fc-text-muted);
+  margin-top: 0.2rem;
+}
