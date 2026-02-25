@@ -83,10 +83,11 @@ function cerrarSesion() {
 }
 
 const navItems = [
-  { path: '/',              icon: 'pi-home',        label: 'Dashboard'     },
-  { path: '/transacciones', icon: 'pi-arrows-h',    label: 'Transacciones' },
-  { path: '/cuentas',       icon: 'pi-credit-card', label: 'Cuentas'       },
-  { path: '/categorias',    icon: 'pi-tag',         label: 'Categorías'    },
+  { path: '/',              icon: 'pi-home',           label: 'Dashboard'     },
+  { path: '/transacciones', icon: 'pi-arrows-h',       label: 'Transacciones' },
+  { path: '/cuentas',       icon: 'pi-credit-card',    label: 'Cuentas'       },
+  { path: '/categorias',    icon: 'pi-tag',            label: 'Categorías'    },
+  { path: '/presupuestos',  icon: 'pi-chart-bar',      label: 'Presupuestos'  },
 ]
 </script>
 

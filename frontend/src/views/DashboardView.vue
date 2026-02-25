@@ -150,6 +150,31 @@
           </div>
         </div>
       </div>
+
+      <!-- ── Alertas TC ─────────────────────────────────── -->
+      <div v-if="alertasTC.length > 0" class="alertas-tc">
+        <div
+          v-for="a in alertasTC" :key="a._id"
+          class="alerta-tc-item card"
+          :class="a.urgente ? 'alerta--danger' : 'alerta--warn'"
+        >
+          <i class="pi pi-credit-card alerta-tc-icon"></i>
+          <div class="alerta-tc-body">
+            <span class="alerta-tc-nombre">{{ a.nombre }}</span>
+            <span class="alerta-tc-sub">
+              <span v-if="a.diasCorte >= 0">
+                Corte en <strong>{{ a.diasCorte }}</strong> días (día {{ a.dia_corte }})
+              </span>
+              <span v-if="a.diasPago >= 0 && a.diasPago <= 7" style="margin-left:0.75rem">
+                · Pago en <strong>{{ a.diasPago }}</strong> días (día {{ a.dia_pago }})
+              </span>
+            </span>
+          </div>
+          <span class="alerta-tc-badge" :class="a.urgente ? 'badge--danger' : 'badge--warn'">
+            {{ a.urgente ? '¡Urgente!' : 'Próximo' }}
+          </span>
+        </div>
+      </div>
     </template>
   </div>
 </template>
@@ -162,10 +187,12 @@ import Chart from 'primevue/chart'
 import ProgressSpinner from 'primevue/progressspinner'
 import { TransaccionesDB } from '../db/repositorios'
 import { useCategoriasStore } from '../stores/categorias'
+import { useCuentasStore } from '../stores/cuentas'
 
-const router   = useRouter()
-const catStore = useCategoriasStore()
-const cargando = ref(true)
+const router      = useRouter()
+const catStore    = useCategoriasStore()
+const cuentaStore = useCuentasStore()
+const cargando    = ref(true)
 
 // ── Mes activo ────────────────────────────────────────────
 const now  = new Date()
@@ -194,7 +221,10 @@ const datos = ref({
 async function cargarDatos() {
   cargando.value = true
   try {
-    await catStore.cargar()
+    await Promise.all([
+      catStore.cargar(),
+      cuentaStore.cargar(),
+    ])
     datos.value = await TransaccionesDB.resumen(mes.value, anio.value)
   } catch (e) {
     console.error('[Dashboard] Error:', e)
@@ -317,6 +347,22 @@ const barOpts = {
     },
   },
 }
+
+// ── Alertas TC ────────────────────────────────────────────
+const alertasTC = computed(() => {
+  const hoy = new Date()
+  const diaHoy = hoy.getDate()
+  return cuentaStore.cuentasActivas
+    .filter(c => c.tipo === 'credito')
+    .map(c => {
+      // Días hasta el próximo corte y pago
+      const diasCorte = c.dia_corte >= diaHoy ? c.dia_corte - diaHoy : (30 - diaHoy + c.dia_corte)
+      const diasPago  = c.dia_pago  >= diaHoy ? c.dia_pago  - diaHoy : (30 - diaHoy + c.dia_pago)
+      return { ...c, diasCorte, diasPago, urgente: diasCorte <= 3 || diasPago <= 3 }
+    })
+    .filter(c => c.diasCorte <= 7 || c.diasPago <= 7)
+    .sort((a, b) => a.diasCorte - b.diasCorte)
+})
 
 // ── Formatter ─────────────────────────────────────────────
 const fmt = (n) =>
@@ -619,5 +665,41 @@ const fmt = (n) =>
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Alertas TC ──────────────────────────────────────────── */
+.alertas-tc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.alerta-tc-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid;
+}
+
+.alerta--danger { border-color: var(--fc-danger); background: rgba(239,68,68,0.05); }
+.alerta--warn   { border-color: var(--fc-warning); background: rgba(245,158,11,0.05); }
+
+.alerta-tc-icon { font-size: 1.2rem; }
+.alerta--danger .alerta-tc-icon { color: var(--fc-danger); }
+.alerta--warn   .alerta-tc-icon { color: var(--fc-warning); }
+
+.alerta-tc-body { flex: 1; display: flex; flex-direction: column; gap: 0.15rem; }
+.alerta-tc-nombre { font-weight: 700; font-size: 0.9rem; }
+.alerta-tc-sub { font-size: 0.8rem; color: var(--fc-text-muted); }
+
+.alerta-tc-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+}
+.badge--danger { background: rgba(239,68,68,0.15); color: var(--fc-danger); }
+.badge--warn   { background: rgba(245,158,11,0.15); color: var(--fc-warning); }
 
 </style>

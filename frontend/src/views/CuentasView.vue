@@ -45,9 +45,15 @@
         </div>
         <div v-if="cuenta.tipo === 'credito'" class="cuenta-limite">
           <span class="text-muted">Límite:</span>
-          <span>{{ formatNum(cuenta.limite_credito) }}</span>
+          <span>{{ fmt(cuenta.limite_credito) }}</span>
         </div>
-        <div class="cuenta-moneda text-muted">{{ cuenta.moneda || 'COP' }}</div>
+        <div class="cuenta-saldo">
+          <span class="text-muted" style="font-size:0.72rem">Saldo actual</span>
+          <span class="saldo-valor" :class="store.saldoCuenta(cuenta._id) >= 0 ? 'text-success' : 'text-danger'">
+            {{ fmt(store.saldoCuenta(cuenta._id)) }}
+          </span>
+        </div>
+        <div class="cuenta-moneda text-muted">{{ cuenta.moneda || 'PEN' }}</div>
       </div>
     </div>
 
@@ -256,7 +262,10 @@ const iconoTipo = (t) => ({ efectivo: 'pi-money-bill', debito: 'pi-building-colu
 const colorTipo = (t) => ({ efectivo: '#10b981', debito: '#6366f1', credito: '#f59e0b' }[t] || '#94a3b8')
 const etiquetaTipo = (t) => ({ efectivo: 'Efectivo', debito: 'Débito', credito: 'Crédito' }[t] || t)
 const severidadTipo = (t) => ({ efectivo: 'success', debito: 'info', credito: 'warn' }[t] || 'secondary')
-const formatNum = (n) => n ? new Intl.NumberFormat('es-CO').format(n) : '—'
+const fmt = (n) => n !== undefined && n !== null
+  ? `S/ ${Number(n).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  : 'S/ 0.00'
+const formatNum = fmt  // alias
 </script>
 
 <style scoped>
@@ -352,6 +361,18 @@ const formatNum = (n) => n ? new Intl.NumberFormat('es-CO').format(n) : '—'
   justify-content: space-between;
   font-size: 0.85rem;
   margin-bottom: 0.4rem;
+}
+
+.cuenta-saldo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-bottom: 0.4rem;
+}
+
+.saldo-valor {
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .cuenta-moneda {

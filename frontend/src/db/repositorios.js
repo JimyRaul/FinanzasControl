@@ -213,4 +213,81 @@ export const TransaccionesDB = {
 
         return { ingresos, gastos, balance: ingresos - gastos, porCategoria, evolucion, recientes }
     },
+
+    /** Calcula el saldo real de cada cuenta: saldo_inicial + movimientos */
+    async calcularSaldos() {
+        const todos = await buscar(withUser({ type: 'transaccion' }))
+        const saldos = {}
+        for (const tx of todos.filter(t => !t._deleted)) {
+            if (!tx.cuenta_id) continue
+            if (!saldos[tx.cuenta_id]) saldos[tx.cuenta_id] = 0
+            saldos[tx.cuenta_id] += tx.tipo === 'ingreso' ? (tx.monto || 0) : -(tx.monto || 0)
+        }
+        return saldos  // { cuenta_id: delta_movimientos }
+    },
+
+    /** Crea una transferencia entre dos cuentas (par de docs vinculados) */
+    async crearTransferencia({ cuenta_origen, cuenta_destino, monto, fecha, nota }) {
+        const usuario_id = getUsuarioId()
+        const parId = `tx_par_${uuid()}`
+        const base = {
+            type: 'transaccion',
+            usuario_id,
+            es_transferencia: true,
+            transferencia_par_id: parId,
+            cuotas: 1, cuota_actual: 1, es_tarjeta_credito: false,
+            monto: Number(monto),
+            fecha,
+            nota: nota || '',
+            tags: [],
+            created_at: new Date().toISOString(),
+        }
+        const docs = [
+            { ...base, _id: `transaccion_${uuid()}`, tipo: 'gasto', cuenta_id: cuenta_origen, descripcion: `Transferencia → cuenta` },
+            { ...base, _id: `transaccion_${uuid()}`, tipo: 'ingreso', cuenta_id: cuenta_destino, descripcion: `Transferencia ← cuenta` },
+        ]
+        await bulkDocs(docs)
+        return docs
+    },
+}
+
+// ─── PRESUPUESTOS ─────────────────────────────────────────
+
+export const PresupuestosDB = {
+    async listar(mes, anio) {
+        const selector = mes && anio
+            ? withUser({ type: 'presupuesto', mes, anio })
+            : withUser({ type: 'presupuesto' })
+        return buscar(selector)
+    },
+
+    async crear(datos) {
+        const doc = crearDoc('presupuesto', {
+            monto_limite: 0,
+            ...datos,
+        })
+        return insertarConId(doc)
+    },
+
+    async actualizar(id, datos) {
+        const doc = await obtener(id)
+        return actualizarDoc({ ...doc, ...datos, updated_at: new Date().toISOString() })
+    },
+
+    async eliminar(id) {
+        const doc = await obtener(id)
+        return actualizarDoc({ ...doc, _deleted: true })
+    },
+
+    /** Devuelve presupuestos del mes con gastos reales calculados */
+    async conGastos(mes, anio, gastosPorCategoria = {}) {
+        const presupuestos = await this.listar(mes, anio)
+        return presupuestos.map(p => ({
+            ...p,
+            gastado: gastosPorCategoria[p.categoria_id] || 0,
+            pct: p.monto_limite > 0
+                ? Math.min(100, Math.round(((gastosPorCategoria[p.categoria_id] || 0) / p.monto_limite) * 100))
+                : 0,
+        }))
+    },
 }

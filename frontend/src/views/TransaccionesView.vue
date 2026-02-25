@@ -11,7 +11,10 @@
           <span class="text-danger">-{{ formatNum(resumen.gastos) }}</span>
         </p>
       </div>
-      <Button label="Registrar" icon="pi pi-plus" @click="abrirNueva" />
+      <div class="header-btns">
+        <Button label="Transferir" icon="pi pi-arrow-right-arrow-left" outlined @click="abrirTransferencia" />
+        <Button label="Registrar" icon="pi pi-plus" @click="abrirNueva" />
+      </div>
     </div>
 
     <!-- Barra de filtros -->
@@ -292,6 +295,55 @@
     </Dialog>
 
     <ConfirmDialog />
+
+    <!-- Dialog Transferencia -->
+    <Dialog
+      v-model:visible="transVisible"
+      header="Transferencia entre cuentas"
+      :style="{ width: '440px' }"
+      modal :draggable="false"
+    >
+      <div class="dialog-form">
+        <div class="field">
+          <label>Cuenta origen *</label>
+          <Select
+            v-model="transForm.cuenta_origen"
+            :options="cuentasStore.cuentasActivas"
+            optionLabel="nombre" optionValue="_id"
+            placeholder="Desde..."
+            fluid
+          />
+        </div>
+        <div class="field">
+          <label>Cuenta destino *</label>
+          <Select
+            v-model="transForm.cuenta_destino"
+            :options="cuentasStore.cuentasActivas.filter(c => c._id !== transForm.cuenta_origen)"
+            optionLabel="nombre" optionValue="_id"
+            placeholder="Hacia..."
+            fluid
+          />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Monto *</label>
+            <InputNumber v-model="transForm.monto" :min="0.01" :minFractionDigits="2" placeholder="0.00" fluid />
+          </div>
+          <div class="field">
+            <label>Fecha</label>
+            <DatePicker v-model="transForm.fecha" dateFormat="yy-mm-dd" showIcon fluid />
+          </div>
+        </div>
+        <div class="field">
+          <label>Nota</label>
+          <InputText v-model="transForm.nota" placeholder="Opcional" fluid />
+        </div>
+      </div>
+      <template #footer>
+        <Button label="Cancelar" text @click="transVisible = false" />
+        <Button label="Transferir" icon="pi pi-check" :loading="transGuardando" @click="guardarTransferencia" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -313,6 +365,7 @@ import ConfirmDialog from 'primevue/confirmdialog'
 import { useTransaccionesStore } from '../stores/transacciones'
 import { useCuentasStore } from '../stores/cuentas'
 import { useCategoriasStore } from '../stores/categorias'
+import { TransaccionesDB } from '../db/repositorios'
 
 const store        = useTransaccionesStore()
 const cuentasStore = useCuentasStore()
@@ -547,9 +600,50 @@ const formatFecha = (f) => {
   const [y, m, d] = f.split('-')
   return `${d} de ${MESES[parseInt(m) - 1]} ${y}`
 }
+
+// ── Dialog Transferencia ────────────────────────────────────────
+const transVisible  = ref(false)
+const transGuardando = ref(false)
+const transForm = reactive({
+  cuenta_origen: null, cuenta_destino: null,
+  monto: null, fecha: new Date().toISOString().slice(0, 10), nota: '',
+})
+
+function abrirTransferencia() {
+  Object.assign(transForm, { cuenta_origen: null, cuenta_destino: null, monto: null, nota: '' })
+  transVisible.value = true
+}
+
+async function guardarTransferencia() {
+  if (!transForm.cuenta_origen || !transForm.cuenta_destino || !transForm.monto) {
+    toast.add({ severity: 'warn', summary: 'Completa todos los campos', life: 3000 })
+    return
+  }
+  if (transForm.cuenta_origen === transForm.cuenta_destino) {
+    toast.add({ severity: 'warn', summary: 'Las cuentas no pueden ser la misma', life: 3000 })
+    return
+  }
+  transGuardando.value = true
+  try {
+    const fecha = transForm.fecha instanceof Date
+      ? transForm.fecha.toISOString().slice(0, 10)
+      : transForm.fecha
+    await TransaccionesDB.crearTransferencia({ ...transForm, fecha })
+    toast.add({ severity: 'success', summary: 'Transferencia registrada', life: 3000 })
+    transVisible.value = false
+    recargar()
+  } catch (e) {
+    toast.add({ severity: 'error', summary: 'Error', detail: e.message, life: 5000 })
+  } finally {
+    transGuardando.value = false
+  }
+}
 </script>
 
 <style scoped>
+/* ── Header botones ───────────────────────────────────── */
+.header-btns { display: flex; gap: 0.5rem; align-items: center; }
+
 /* ── Filtros ───────────────────────────────────────────── */
 .filtros-bar {
   display: flex;
